@@ -1,5 +1,6 @@
 package com.restfriedchicken.ordering.rest;
 
+import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.restfriedchicken.ordering.Application;
@@ -14,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static com.restfriedchicken.ordering.rest.HateoasUtils.selfLinkOf;
+import static com.restfriedchicken.ordering.rest.HateoasUtils.linkOf;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -43,7 +44,7 @@ public class OrderResourceIntegrationTest {
 
 
     @Test
-    public void should_returns_status_code_with_accepted_and_self_link() throws Exception {
+    public void should_returns_accepted_and_self_link_when_places_an_order() throws Exception {
 
         final String command = "{" +
                 "\"tracking_id\": \"123456\"," +
@@ -59,10 +60,20 @@ public class OrderResourceIntegrationTest {
                 statusCode(SC_ACCEPTED)
                 .extract().response();
 
-        String json = response.asString();
+        String responseBody = response.asString();
 
-        assertThat(selfLinkOf(json).get(),
+        assertThat(linkOf(responseBody, "self", "href"),
                 equalTo(getResourceUri("/order/123456")));
+
+
+        assertThat(linkOf(responseBody, "payment", "href"),
+                equalTo("http://www.restfriedchicken.com/online-txn/123456"));
+
+        assertThat(JsonPath.read(responseBody, "$.tracking_id"),
+                equalTo("123456"));
+
+        assertThat(JsonPath.read(responseBody, "$.status"),
+                equalTo("WAIT_PAYMENT"));
     }
 
     private String getResourceUri(String path) {

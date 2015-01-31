@@ -20,7 +20,7 @@ public class HateoasUtilsTest {
                 "]" +
                 "}";
 
-        assertThat(selfLinkOf(json).get(), equalTo("http://localhost:50733/order"));
+        assertThat(selfLinkOf(json, "href"), equalTo("http://localhost:50733/order"));
     }
 
 }

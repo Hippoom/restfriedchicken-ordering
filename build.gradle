@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'spring-boot'
 
 
@@ -7,22 +8,42 @@ version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+configurations {
+    provided
+}
+
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+    test {
+        compileClasspath += configurations.provided
+    }
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.projectlombok:lombok:1.14.8' //TODO: should be provided
+    provided 'org.projectlombok:lombok:1.14.8'
 
     compile "org.springframework.boot:spring-boot-starter-web"
     compile 'org.springframework.hateoas:spring-hateoas:0.16.0.RELEASE'
+    compile 'com.google.guava:guava:18.0'
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile('junit:junit:4.12') {
         exclude group: 'org.hamcrest'
     }
     testCompile 'org.hamcrest:hamcrest-library:1.3'
-    testCompile 'com.google.guava:guava:18.0'
     testCompile 'com.jayway.restassured:rest-assured:2.4.0'
     testCompile 'com.jayway.jsonpath:json-path:1.2.0'
 }
@@ -47,3 +68,4 @@ buildscript {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
+

@@ -7,6 +7,7 @@ import java.util.List;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PlaceOrderCommand {
+
     @JsonProperty("tracking_id")
     private String trackingId;
 
