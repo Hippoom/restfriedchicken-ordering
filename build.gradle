@@ -7,21 +7,12 @@ version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-configurations {
-    provided
-}
-
-sourceSets {
-    main { compileClasspath += configurations.provided }
-    test { compileClasspath += configurations.provided }
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    provided 'org.projectlombok:lombok:1.14.8'
+    compile 'org.projectlombok:lombok:1.14.8' //TODO: should be provided
 
     compile "org.springframework.boot:spring-boot-starter-web"
     compile 'org.springframework.hateoas:spring-hateoas:0.16.0.RELEASE'
