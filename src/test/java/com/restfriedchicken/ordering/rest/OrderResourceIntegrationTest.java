@@ -7,15 +7,17 @@ import com.restfriedchicken.ordering.Application;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.LinkDiscoverer;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static com.restfriedchicken.ordering.rest.HateoasUtils.linkOf;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,6 +37,9 @@ public class OrderResourceIntegrationTest {
     protected int getPort() {
         return port;
     }
+
+    @Autowired
+    private LinkDiscoverer linkDiscoverer;
 
     @Before
     public void config_rest_assured() {
@@ -62,11 +67,14 @@ public class OrderResourceIntegrationTest {
 
         String responseBody = response.asString();
 
-        assertThat(linkOf(responseBody, "self", "href"),
+        Link self = linkDiscoverer.findLinkWithRel("self", responseBody);
+        Link payment = linkDiscoverer.findLinkWithRel("payment", responseBody);
+
+        assertThat(self.getHref(),
                 equalTo(getResourceUri("/order/123456")));
 
 
-        assertThat(linkOf(responseBody, "payment", "href"),
+        assertThat(payment.getHref(),
                 equalTo("http://www.restfriedchicken.com/online-txn/123456"));
 
         assertThat(JsonPath.read(responseBody, "$.tracking_id"),
