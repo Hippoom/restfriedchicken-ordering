@@ -22,6 +22,11 @@ public class OrderResource extends ResourceSupport {
         this.items = items;
     }
 
+    //for frameworks only
+    private OrderResource() {
+
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class Item {
         private String name;
@@ -30,6 +35,11 @@ public class OrderResource extends ResourceSupport {
         public Item(String name, int quantity) {
             this.name = name;
             this.quantity = quantity;
+        }
+
+        // for frameworks only
+        private Item() {
+
         }
     }
 }
