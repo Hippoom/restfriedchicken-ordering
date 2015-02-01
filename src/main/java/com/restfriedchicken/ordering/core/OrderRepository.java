@@ -16,7 +16,7 @@ public class OrderRepository {
     }
 
     public Optional<Order> findByTrackingId(String trackingId) {
-        return orders.stream().filter(o -> o.getTrackingId().equals(trackingId)).findFirst();
+        return orders.stream().filter(o -> o.getTrackingId().equals(trackingId)).distinct().findFirst();
     }
 
     public void clear() {

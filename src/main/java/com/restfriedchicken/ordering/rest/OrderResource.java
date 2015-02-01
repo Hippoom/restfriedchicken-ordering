@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.ResourceSupport;
 
+import java.util.List;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OrderResource extends ResourceSupport {
     @JsonProperty("tracking_id")
@@ -12,9 +14,22 @@ public class OrderResource extends ResourceSupport {
 
     private String status;
 
+    private List<Item> items;
 
-    public OrderResource(String trackingId, String status) {
+    public OrderResource(String trackingId, String status, List<Item> items) {
         this.trackingId = trackingId;
         this.status = status;
+        this.items = items;
+    }
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    public static class Item {
+        private String name;
+        private int quantity;
+
+        public Item(String name, int quantity) {
+            this.name = name;
+            this.quantity = quantity;
+        }
     }
 }

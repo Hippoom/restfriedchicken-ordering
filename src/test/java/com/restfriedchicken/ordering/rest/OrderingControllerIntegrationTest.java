@@ -89,18 +89,13 @@ public class OrderingControllerIntegrationTest {
 
         assertThat(payment.getHref(),
                 equalTo("http://www.restfriedchicken.com/online-txn/123456"));
-
-        assertThat(JsonPath.read(responseBody, "$.tracking_id"),
-                equalTo("123456"));
-
-        assertThat(JsonPath.read(responseBody, "$.status"),
-                equalTo("WAIT_PAYMENT"));
     }
 
     @Test
     public void should_returns_ok_and_resource_when_gets_an_order() throws Exception {
 
         Order order = new Order("123456");
+        order.item("Fried Chicken", 1);
         orderRepository.store(order);
 
         Response response = given().contentType(JSON).
@@ -127,6 +122,13 @@ public class OrderingControllerIntegrationTest {
 
         assertThat(JsonPath.read(responseBody, "$.status"),
                 equalTo(order.getStatus().getCode()));
+
+        final Order.Item item = order.getItems().stream().findFirst().get();
+
+        assertThat(JsonPath.read(responseBody, "$.items[0].name"),
+                equalTo(item.getName()));
+        assertThat(JsonPath.read(responseBody, "$.items[0].quantity"),
+                equalTo(item.getQuantity()));
     }
 
     private String getResourceUri(String path) {
