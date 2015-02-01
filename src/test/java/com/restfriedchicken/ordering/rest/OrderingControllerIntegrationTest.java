@@ -98,7 +98,7 @@ public class OrderingControllerIntegrationTest {
     }
 
     @Test
-    public void should_returns_ok_and_resouce_when_gets_an_order() throws Exception {
+    public void should_returns_ok_and_resource_when_gets_an_order() throws Exception {
 
         Order order = new Order("123456");
         orderRepository.store(order);
