@@ -4,6 +4,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.restfriedchicken.ordering.Application;
+import com.restfriedchicken.ordering.core.Order;
+import com.restfriedchicken.ordering.core.OrderRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +21,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -26,7 +29,7 @@ import static org.hamcrest.Matchers.equalTo;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")//random port used
-public class OrderResourceIntegrationTest {
+public class OrderingControllerIntegrationTest {
     @Value("${local.server.port}")
     private int port;
 
@@ -41,10 +44,19 @@ public class OrderResourceIntegrationTest {
     @Autowired
     private LinkDiscoverer linkDiscoverer;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+
     @Before
     public void config_rest_assured() {
         RestAssured.baseURI = getBaseUri();
         RestAssured.port = getPort();
+    }
+
+    @Before
+    public void reset_test_doubles() {
+        orderRepository.clear();
     }
 
 
@@ -57,6 +69,7 @@ public class OrderResourceIntegrationTest {
                 "\"name\": \"potato\"," +
                 "\"quantity\": \"1\"" +
                 "}]}";
+
 
         Response response = given().contentType(JSON).content(command).
                 when().
@@ -82,6 +95,38 @@ public class OrderResourceIntegrationTest {
 
         assertThat(JsonPath.read(responseBody, "$.status"),
                 equalTo("WAIT_PAYMENT"));
+    }
+
+    @Test
+    public void should_returns_ok_and_resouce_when_gets_an_order() throws Exception {
+
+        Order order = new Order("123456");
+        orderRepository.store(order);
+
+        Response response = given().contentType(JSON).
+                when().
+                get("/order/" + order.getTrackingId()).
+                then().log().everything().
+                statusCode(SC_OK)
+                .extract().response();
+
+        String responseBody = response.asString();
+
+        Link self = linkDiscoverer.findLinkWithRel("self", responseBody);
+        Link payment = linkDiscoverer.findLinkWithRel("payment", responseBody);
+
+        assertThat(self.getHref(),
+                equalTo(getResourceUri("/order/" + order.getTrackingId())));
+
+
+        assertThat(payment.getHref(),
+                equalTo("http://www.restfriedchicken.com/online-txn/" + order.getTrackingId()));
+
+        assertThat(JsonPath.read(responseBody, "$.tracking_id"),
+                equalTo(order.getTrackingId()));
+
+        assertThat(JsonPath.read(responseBody, "$.status"),
+                equalTo(order.getStatus().getCode()));
     }
 
     private String getResourceUri(String path) {
