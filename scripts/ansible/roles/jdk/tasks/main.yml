@@ -1,0 +1,3 @@
+---
+ - name: make sure {{ jdk_rpm }} is installed
+   yum: name=/root/Downloads/{{ jdk_rpm }} state=present

@@ -1,0 +1,4 @@
+---
+ordering_service_port: 18001
+ordering_service_container_name: "ordering-service-{{ordering_service_port}}"
+

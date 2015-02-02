@@ -1,0 +1,9 @@
+---
+- name: manage ordering-service containers
+  hosts: ordering-services
+  sudo: yes
+
+  roles:
+    - ordering-service-container
+
+

@@ -1,0 +1,8 @@
+---
+ - name: make sure scripts is uploaded
+   template: src={{ item.template }} dest={{ ordering_dir }}/{{ item.file }}
+   with_items:
+     - { template: 'start_app.sh.j2', file: 'start_app.sh' }
+
+ - name: make sure ots service is uploaded
+   copy: src=/root/Downloads/{{ ordering_binary }} dest={{ ordering_dir }}/

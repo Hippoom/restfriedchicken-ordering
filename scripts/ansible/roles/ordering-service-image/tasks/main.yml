@@ -1,0 +1,31 @@
+---
+
+ - name: create and clear build context
+   shell: mkdir -p {{ build_context }} && rm -rf {{ build_context }}/*
+
+ - name: copy Dockerfile
+   template: >
+     src=Dockerfile.j2
+     dest={{ build_context }}/Dockerfile
+
+ - name: copy presiqueties to build context
+   copy: >
+     src=~/file-server/java/jdk-8u25-linux-x64.rpm
+     dest={{ build_context }}/
+
+ - name: copy ansbile playbooks to build context
+   copy: >
+     src="{{ item }}"
+     dest={{ build_context }}/scripts/
+   with_items:
+     - ../ansible
+
+ - name: copy binary to build context
+   copy: >
+     src=../../build/libs/
+     dest={{ build_context }}/
+
+ - name: build image
+   shell: >
+     docker build -t="hippoom/restfriedchicken-ordering-service:{{ ordering_service_tag | default('latest')}}" {{ build_context }}/
+

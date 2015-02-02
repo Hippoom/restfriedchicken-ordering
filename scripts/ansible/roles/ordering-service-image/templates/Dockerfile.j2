@@ -1,0 +1,9 @@
+FROM hippoom/ansible_centos65:1.8.1
+MAINTAINER Rest Fried Chicken - Hippoom
+
+
+ADD * /root/Downloads/
+WORKDIR /root/Downloads/ansible
+RUN ansible-playbook ordering-service-deployment.yml -vvvv -c local
+CMD sh /root/start_app.sh
+EXPOSE 8080

@@ -1,0 +1,26 @@
+---
+
+ - name: detect existing ordering service container
+   shell: >
+     docker ps -f="name={{ ordering_service_container_name }}" -aq
+   register: existing_container_id
+
+ - debug: msg="{{ existing_container_id }}"
+
+ - name: stop existing ordering service container
+   shell: >
+     docker stop {{ item }}
+   with_items: existing_container_id.stdout_lines
+   when: existing_container_id.stdout_lines != []
+
+ - name: remove existing ordering service container
+   shell: >
+     docker rm {{ item }}
+   with_items: existing_container_id.stdout_lines
+   when: existing_container_id.stdout_lines != []
+
+ - name: start ordering service container
+   shell: >
+     docker run --name="{{ ordering_service_container_name }}" -d -p={{ ordering_service_port }}:8080 hippoom/restfriedchicken-ordering-service:{{ ordering_service_tag }}
+
+

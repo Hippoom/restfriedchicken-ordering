@@ -1,0 +1,9 @@
+---
+- name: Build ordering-service image
+  hosts: docker-server
+  sudo: yes
+
+  roles:
+    - ordering-service-image
+
+

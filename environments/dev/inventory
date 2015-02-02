@@ -1,0 +1,5 @@
+[docker-server]
+192.168.70.2 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant
+
+[ordering-services]
+ordering-server-1 ansible_ssh_host=192.168.70.2 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant sudo-pass=vagrant

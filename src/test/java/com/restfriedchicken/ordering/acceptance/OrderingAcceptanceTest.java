@@ -40,7 +40,7 @@ public class OrderingAcceptanceTest {
                 trackingId, new PlaceOrderCommand.Item("fried chicken", 1));
 
         final OrderResource resource = restTemplate.
-                postForObject("http://localhost:8080/order", command, OrderResource.class);
+                postForObject("http://192.168.70.2:18001/order", command, OrderResource.class);
 
         assertThat(resource.getLink("payment").getHref(), is("http://www.restfriedchicken.com/online-txn/" + trackingId));
     }

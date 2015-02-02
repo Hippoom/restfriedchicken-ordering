@@ -1,0 +1,6 @@
+---
+- name: Deploy ordering service
+  hosts: localhost
+
+  roles:
+    - ordering-service-deployment
