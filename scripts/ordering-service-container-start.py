@@ -12,7 +12,7 @@ else:
 
 print ordering_service_tag
 
-command = 'cd ansible && ansible-playbook ordering-service-container.yml -i ../../environments/{env}/inventory -vvvv --extra-vars="env={env} ordering_service_tag={ordering_service_tag}"'
+command = 'ansible-playbook ansible/ordering-service-container.yml -i ../environments/{env}/inventory -vvvv --extra-vars="env={env} ordering_service_tag={ordering_service_tag}"'
 
-subprocess.call(command.format(env=env, ordering_service_tag=ordering_service_tag), shell=True)
+subprocess.check_call(command.format(env=env, ordering_service_tag=ordering_service_tag), shell=True)
 
