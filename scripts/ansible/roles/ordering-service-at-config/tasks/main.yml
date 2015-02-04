@@ -1,3 +1,6 @@
 ---
+ - name: make sure resources dir exists
+   file: path=../../build/resources/test state=directory
+
  - name: replace config for acceptance test
    template: src=env.properties.j2 dest=../../build/resources/test/env.properties
