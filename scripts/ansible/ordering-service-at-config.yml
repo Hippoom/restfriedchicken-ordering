@@ -3,6 +3,6 @@
   hosts: localhost
 
   roles:
-    - ordering-service-acceptance-config
+    - ordering-service-at-config
 
 
