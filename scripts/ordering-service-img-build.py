@@ -1,4 +1,4 @@
-import os
+import subprocess
 import sys
 
 args = sys.argv
@@ -12,8 +12,8 @@ print ordering_service_tag
 
 command = 'cd ansible && ansible-playbook ordering-service-image.yml -i ../../environments/{env}/inventory -vvvv --extra-vars="ordering_service_tag={ordering_service_tag}"'
 
-os.system(command.format(env=env, ordering_service_tag=ordering_service_tag))
-os.system('mkdir -p ../build && touch ../build/ordering-service-tag')
+subprocess.call(command.format(env=env, ordering_service_tag=ordering_service_tag), shell=True)
+subprocess.call('mkdir -p ../build && touch ../build/ordering-service-tag', shell=True)
 
 with open('../build/ordering-service-tag', "w") as the_file:
     the_file.write(ordering_service_tag)
