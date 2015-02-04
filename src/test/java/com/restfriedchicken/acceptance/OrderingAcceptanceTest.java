@@ -1,4 +1,4 @@
-package com.restfriedchicken.ordering.acceptance;
+package com.restfriedchicken.acceptance;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfriedchicken.ordering.command.PlaceOrderCommand;
