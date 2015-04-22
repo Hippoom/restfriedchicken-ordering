@@ -99,7 +99,6 @@ task recordBinary() {
     }
 }
 
-uploadArchives.dependsOn uploadArchives
 
 task runAcceptanceTest(type: Test) {
     // this task will be executed in isolation since all artifacts have been built and deployed
