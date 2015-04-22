@@ -118,8 +118,8 @@ def getVersion() {
 
 def getBuildNumber() {
     def revision = System.getenv('GO_REVISION')
-    if (revision == null || revision == "") {
-        throw new IllegalArgumentException("Cannot find ENVIRONMENT VARIABLE[GO_REVISION]")
-    }
-    return revision
+    def pipelineCounter = System.getenv('GO_PIPELINE_COUNTER')
+    def stageCounter = System.getenv('GO_STAGE_COUNTER')
+
+    return "${revision}-${pipelineCounter}-${stageCounter}"
 }
