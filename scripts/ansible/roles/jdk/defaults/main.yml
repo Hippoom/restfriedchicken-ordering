@@ -1,3 +1,4 @@
 ---
-jdk_rpm: jdk-8u25-linux-x64.rpm
+jdk_rpm_dir: /home/vagrant/ftp
+jdk_rpm: jdk-8u40-linux-x64.rpm
 

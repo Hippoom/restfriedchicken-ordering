@@ -1,3 +1,13 @@
+#intelij
 .idea
-build
 *.iml
+
+#gradle
+build
+.gradle
+
+#osx
+.DS_Store
+
+#local
+src/test/resources/env.properties

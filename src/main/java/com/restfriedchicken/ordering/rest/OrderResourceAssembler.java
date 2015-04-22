@@ -21,7 +21,7 @@ public class OrderResourceAssembler extends ResourceAssemblerSupport<Order, Orde
     @Override
     public OrderResource toResource(Order model) {
 
-        OrderResource resource = new OrderResource(model.getTrackingId(), model.getStatus().getCode(), to_resource(model.getItems()));
+        OrderResource resource = new OrderResource(model.getTrackingId(), model.getStatus().getCode(), toResources(model.getItems()));
         resource.add(linkTo(methodOn(OrderingController.class).
                 getByTrackingId(model.getTrackingId())).withSelfRel());
 
@@ -30,7 +30,7 @@ public class OrderResourceAssembler extends ResourceAssemblerSupport<Order, Orde
         return resource;
     }
 
-    private List<OrderResource.Item> to_resource(List<Order.Item> models) {
+    private List<OrderResource.Item> toResources(List<Order.Item> models) {
         return models.stream().map(m -> new OrderResource.Item(m.getName(), m.getQuantity()))
                 .collect(Collectors.toList());
     }

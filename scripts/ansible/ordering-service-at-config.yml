@@ -1,8 +1,0 @@
----
-- name: manage ordering-service containers
-  hosts: localhost
-
-  roles:
-    - ordering-service-at-config
-
-

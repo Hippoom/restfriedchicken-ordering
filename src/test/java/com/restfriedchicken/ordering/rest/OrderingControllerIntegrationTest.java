@@ -73,7 +73,7 @@ public class OrderingControllerIntegrationTest {
 
         Response response = given().contentType(JSON).content(command).
                 when().
-                post("/order").
+                post("/orders").
                 then().log().everything().
                 statusCode(SC_ACCEPTED)
                 .extract().response();
@@ -84,7 +84,7 @@ public class OrderingControllerIntegrationTest {
         Link payment = linkDiscoverer.findLinkWithRel("payment", responseBody);
 
         assertThat(self.getHref(),
-                equalTo(getResourceUri("/order/123456")));
+                equalTo(getResourceUri("/orders/123456")));
 
 
         assertThat(payment.getHref(),
@@ -100,7 +100,7 @@ public class OrderingControllerIntegrationTest {
 
         Response response = given().contentType(JSON).
                 when().
-                get("/order/" + order.getTrackingId()).
+                get("/orders/" + order.getTrackingId()).
                 then().log().everything().
                 statusCode(SC_OK)
                 .extract().response();
@@ -111,7 +111,7 @@ public class OrderingControllerIntegrationTest {
         Link payment = linkDiscoverer.findLinkWithRel("payment", responseBody);
 
         assertThat(self.getHref(),
-                equalTo(getResourceUri("/order/" + order.getTrackingId())));
+                equalTo(getResourceUri("/orders/" + order.getTrackingId())));
 
 
         assertThat(payment.getHref(),

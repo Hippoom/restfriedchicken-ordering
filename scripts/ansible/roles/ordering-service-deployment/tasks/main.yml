@@ -1,8 +1,14 @@
 ---
+ - name: make sure service home is created
+   file: path={{ ordering_dir }} state=directory
+
  - name: make sure scripts is uploaded
-   template: src={{ item.template }} dest={{ ordering_dir }}/{{ item.file }}
+   template: src={{ item.template }} dest={{ ordering_dir }}/{{ item.file }} mode="u=rwx,g=r,o=r"
    with_items:
      - { template: 'start_app.sh.j2', file: 'start_app.sh' }
 
- - name: make sure ots service is uploaded
-   copy: src=/root/Downloads/{{ ordering_binary }} dest={{ ordering_dir }}/
+ - name: make sure ots service is downloaded
+   copy: src={{ ordering_binary_src_dir }}/{{ ordering_binary }} dest={{ ordering_dir }}/
+
+ - name: make sure ots service is running
+   command: "{{ ordering_dir }}/start_app.sh"

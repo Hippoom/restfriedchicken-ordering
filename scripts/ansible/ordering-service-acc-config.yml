@@ -1,0 +1,8 @@
+---
+- name: Config acceptance test
+  hosts: localhost
+
+  roles:
+    - ordering-service-acc-config
+
+

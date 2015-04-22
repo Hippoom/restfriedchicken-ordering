@@ -1,0 +1,2 @@
+[ordering-services]
+ordering-service ansible_ssh_host=127.0.0.1 ansible_ssh_port=17122 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_sudo_pass=vagrant

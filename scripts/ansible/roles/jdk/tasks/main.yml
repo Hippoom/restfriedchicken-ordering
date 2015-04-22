@@ -1,3 +1,4 @@
 ---
  - name: make sure {{ jdk_rpm }} is installed
-   yum: name=/root/Downloads/{{ jdk_rpm }} state=present
+   yum: name={{ jdk_rpm_dir }}/{{ jdk_rpm }} state=present
+   sudo: yes
