@@ -85,6 +85,7 @@ buildscript {
 
 test {
     exclude 'com/restfriedchicken/features/*'
+    exclude 'com/restfriedchicken/smoke/*'
 
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
@@ -100,6 +101,24 @@ task recordBinary() {
 }
 
 
+task runSmokeTest(type: Test) {
+    // this task will be executed in isolation since all artifacts have been built and deployed
+    dependsOn = []
+
+    include "com/restfriedchicken/smoke/*"
+
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+    outputs.upToDateWhen { false }//force to always rerun
+
+    reports {
+        html {
+            destination = "$buildDir/build/reports/smoke"
+        }
+    }
+}
+
 task runAcceptanceTest(type: Test) {
     // this task will be executed in isolation since all artifacts have been built and deployed
     dependsOn = []
@@ -110,6 +129,12 @@ task runAcceptanceTest(type: Test) {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
     outputs.upToDateWhen { false }//force to always rerun
+
+    reports {
+        html {
+            destination = "$buildDir/build/reports/acceptance"
+        }
+    }
 }
 
 def getVersion() {

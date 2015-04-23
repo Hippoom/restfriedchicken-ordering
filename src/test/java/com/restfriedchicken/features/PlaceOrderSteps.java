@@ -3,21 +3,20 @@ package com.restfriedchicken.features;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.ValidatableResponse;
+import com.restfriedchicken.env.EnvConfig;
+import com.restfriedchicken.env.EnvVars;
 import com.restfriedchicken.ordering.command.PlaceOrderCommand;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.LinkDiscoverer;
 import org.springframework.hateoas.RelProvider;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.hal.Jackson2HalModule;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
@@ -31,7 +30,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = {
-        PlaceOrderSteps.EnvConfig.class,
+        EnvConfig.class,
+        EnvVars.class,
         PlaceOrderSteps.HalConfiguration.class}
 )
 public class PlaceOrderSteps {
@@ -40,7 +40,7 @@ public class PlaceOrderSteps {
     private LinkDiscoverer linkDiscoverer;
 
     @Autowired
-    private EnvConfig env;
+    private EnvVars env;
 
     private ValidatableResponse response;
     private String trackingId;
@@ -77,38 +77,9 @@ public class PlaceOrderSteps {
                 equalTo(format("http://www.restfriedchicken.com/online-txn/%s", trackingId)));
     }
 
-    @Component
-    @PropertySource(value = "classpath:env.properties", ignoreResourceNotFound = true)
-    static class EnvConfig {
-        @Value("${orderingServiceHost}")
-        private String orderingServiceHost;
-        @Value("${orderingServicePort}")
-        private int orderingServicePort;
-
-        public String orderingServiceUrl() {
-            return format("http://%s:%d", orderingServiceHost, orderingServicePort);
-        }
-
-        public String getOrderingServiceBaseUri() {
-            return format("http://%s", orderingServiceHost);
-        }
-
-        public int getOrderingServicePort() {
-            return orderingServicePort;
-        }
-    }
-
     @Configuration
     @EnableHypermediaSupport(type = {EnableHypermediaSupport.HypermediaType.HAL})
     static class HalConfiguration {
-
-        @Bean
-        public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-            PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-            configurer.setIgnoreResourceNotFound(true);
-            configurer.setIgnoreUnresolvablePlaceholders(true);
-            return configurer;
-        }
 
         @Autowired
         private RelProvider relProvider;
