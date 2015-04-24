@@ -4,12 +4,16 @@
 
   - name: replace host for test
     lineinfile: >
-      dest=../../build/resources/test/env.properties
+      dest=../../build/resources/test/env.properties.sample
       regexp=^orderingServiceHost=
       line=orderingServiceHost={{ hostvars['ordering-service'].ansible_ssh_host }}
 
   - name: replace port for test
     lineinfile: >
-      dest=../../build/resources/test/env.properties
+      dest=../../build/resources/test/env.properties.sample
       regexp=^orderingServicePort=
       line=orderingServicePort={{ hostvars['ordering-service'].ordering_service_port }}
+
+  - name: make sure config file is ready
+    copy: src=../../build/resources/test/env.properties.sample dest=../../build/resources/test/env.properties
+
