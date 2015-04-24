@@ -13,6 +13,8 @@ public class EnvVars {
     private String orderingServiceHost;
     @Value("${orderingServicePort}")
     private int orderingServicePort;
+    @Value("${orderingServiceVersion}")
+    private String applicationVersion;
 
     public String orderingServiceUrl() {
         return format("http://%s:%d", orderingServiceHost, orderingServicePort);
@@ -24,5 +26,9 @@ public class EnvVars {
 
     public int getOrderingServicePort() {
         return orderingServicePort;
+    }
+
+    public String getApplicationVersion() {
+        return applicationVersion;
     }
 }

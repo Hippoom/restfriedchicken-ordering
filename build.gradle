@@ -27,6 +27,14 @@ sourceSets {
     }
 }
 
+processResources {
+    filter { String line -> line.replace("{version}", getVersion()) }
+}
+
+processTestResources {
+    filter { String line -> line.replace("{version}", getVersion()) }
+}
+
 idea {
     module {
         scopes.PROVIDED.plus += [configurations.provided]
@@ -91,7 +99,6 @@ test {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
 }
-
 
 task recordBinary() {
     doLast {
