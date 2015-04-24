@@ -1,6 +1,15 @@
 ---
- - name: make sure resources dir exists
-   file: path=../../build/resources/test state=directory
+  - name: make sure resources dir exists
+    file: path=../../build/resources/test state=directory
 
- - name: replace config for acceptance test
-   template: src=env.properties.j2 dest=../../build/resources/test/env.properties
+  - name: replace host for test
+    lineinfile: >
+      dest=../../build/resources/test/env.properties
+      regexp=^orderingServiceHost=
+      line=orderingServiceHost={{ hostvars['ordering-service'].ansible_ssh_host }}
+
+  - name: replace port for test
+    lineinfile: >
+      dest=../../build/resources/test/env.properties
+      regexp=^orderingServicePort=
+      line=orderingServicePort={{ hostvars['ordering-service'].ordering_service_port }}
