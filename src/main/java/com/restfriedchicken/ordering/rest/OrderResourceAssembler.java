@@ -2,6 +2,7 @@ package com.restfriedchicken.ordering.rest;
 
 import com.restfriedchicken.ordering.core.Order;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +23,18 @@ public class OrderResourceAssembler extends ResourceAssemblerSupport<Order, Orde
     public OrderResource toResource(Order model) {
 
         OrderResource resource = new OrderResource(model.getTrackingId(), model.getStatus().getCode(), toResources(model.getItems()));
-        resource.add(linkTo(methodOn(OrderingController.class).
-                getByTrackingId(model.getTrackingId())).withSelfRel());
+        resource.add(orderResourceHref(model).withSelfRel());
+        resource.add(orderResourceHref(model).withRel("cancel"));
 
-        resource.add(new Link("http://www.restfriedchicken.com/online-txn/" + model.getTrackingId(), "payment").
-                expand("method", "POST"));
+        resource.add(new Link("http://www.restfriedchicken.com/online-txn/" + model.getTrackingId(), "payment"));
+
+
         return resource;
+    }
+
+    private ControllerLinkBuilder orderResourceHref(Order model) {
+        return linkTo(methodOn(OrderingController.class).
+                getByTrackingId(model.getTrackingId()));
     }
 
     private List<OrderResource.Item> toResources(List<Order.Item> models) {

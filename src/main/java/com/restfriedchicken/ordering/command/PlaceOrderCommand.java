@@ -32,6 +32,10 @@ public class PlaceOrderCommand {
         return trackingId;
     }
 
+    public List<Item> getItems() {
+        return items;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class Item {
         private String name;
@@ -44,6 +48,14 @@ public class PlaceOrderCommand {
 
         //for frameworks only
         private Item() {
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

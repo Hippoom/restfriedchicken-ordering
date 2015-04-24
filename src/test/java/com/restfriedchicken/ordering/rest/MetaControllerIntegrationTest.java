@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.hateoas.LinkDiscoverer;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -38,9 +38,6 @@ public class MetaControllerIntegrationTest {
     }
 
     @Autowired
-    private LinkDiscoverer linkDiscoverer;
-
-    @Autowired
     private MetaStore metaStore;
 
     @Before
@@ -49,10 +46,12 @@ public class MetaControllerIntegrationTest {
         RestAssured.port = getPort();
     }
 
+    @DirtiesContext
     @Before
     public void config_test_meta_store() {
         metaStore.setLocation("classpath:test_meta.json");
     }
+
 
     @Test
     public void should_returns_version() throws Exception {

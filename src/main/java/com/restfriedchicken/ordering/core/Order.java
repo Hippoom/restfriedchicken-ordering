@@ -21,13 +21,14 @@ public class Order {
         return status;
     }
 
-    public void item(String name, int quantity) {
+    public void append(String name, int quantity) {
         this.items.add(new Item(name, quantity));
     }
 
     public List<Item> getItems() {
         return items;
     }
+
 
     public enum Status {
         WAIT_PAYMENT("WAIT_PAYMENT");

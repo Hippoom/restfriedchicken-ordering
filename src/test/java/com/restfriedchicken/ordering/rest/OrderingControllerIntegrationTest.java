@@ -20,10 +20,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -75,13 +76,18 @@ public class OrderingControllerIntegrationTest {
                 when().
                 post("/orders").
                 then().log().everything().
-                statusCode(SC_ACCEPTED)
+                statusCode(SC_CREATED)
                 .extract().response();
 
         String responseBody = response.asString();
 
+        assertThat(JsonPath.read(responseBody, "$.status"), equalTo("WAIT_PAYMENT"));
+        assertThat(JsonPath.read(responseBody, "$.items[0].name"), equalTo("potato"));
+        assertThat(JsonPath.read(responseBody, "$.items[0].quantity"), is(1));
+
         Link self = linkDiscoverer.findLinkWithRel("self", responseBody);
         Link payment = linkDiscoverer.findLinkWithRel("payment", responseBody);
+        Link cancel = linkDiscoverer.findLinkWithRel("cancel", responseBody);
 
         assertThat(self.getHref(),
                 equalTo(getResourceUri("/orders/123456")));
@@ -89,13 +95,14 @@ public class OrderingControllerIntegrationTest {
 
         assertThat(payment.getHref(),
                 equalTo("http://www.restfriedchicken.com/online-txn/123456"));
+        assertThat(cancel.getHref(), equalTo(getResourceUri("/orders/123456")));
     }
 
     @Test
     public void should_returns_ok_and_resource_when_gets_an_order() throws Exception {
 
         Order order = new Order("123456");
-        order.item("Fried Chicken", 1);
+        order.append("Fried Chicken", 1);
         orderRepository.store(order);
 
         Response response = given().contentType(JSON).

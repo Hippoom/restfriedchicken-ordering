@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.ACCEPTED;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -31,12 +31,15 @@ public class OrderingController {
         final String trackingId = command.getTrackingId();
 
         Order order = new Order(trackingId);
+        for (PlaceOrderCommand.Item item: command.getItems()) {
+            order.append(item.getName(), item.getQuantity());
+        }
 
         orderRepository.store(order);
 
         final OrderResource orderResource = orderResourceAssembler.toResource(order);
 
-        return new ResponseEntity<>(orderResource, ACCEPTED);
+        return new ResponseEntity<>(orderResource, CREATED);
     }
 
     @RequestMapping(value = "/{tracking_id}", method = GET)
