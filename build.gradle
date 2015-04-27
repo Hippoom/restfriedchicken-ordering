@@ -53,6 +53,14 @@ dependencies {
     compile 'org.springframework.plugin:spring-plugin-core:1.1.0.RELEASE'
     compile 'com.google.guava:guava:18.0'
 
+
+    //persistence
+    compile 'org.springframework:spring-orm:4.1.6.RELEASE'
+    compile 'org.hibernate:hibernate-core:4.3.8.Final'
+    compile 'org.apache.commons:commons-dbcp2:2.1'
+    testCompile 'org.hsqldb:hsqldb:2.3.2'
+
+
     testCompile "org.springframework.boot:spring-boot-starter-test:${project.springBootVersion}"
     testCompile('junit:junit:4.12') {
         exclude group: 'org.hamcrest'

@@ -1,24 +1,37 @@
 package com.restfriedchicken.ordering.core;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name="t_order")
 public class Order {
+    @Id
+    @Column(name="tracking_id")
     private String trackingId;
-    private Status status;
+    private String status;
+
+    @ElementCollection
+    @AttributeOverrides({
+            @AttributeOverride(name = "name", column = @Column(name = "name")),
+            @AttributeOverride(name = "quantity", column = @Column(name = "quantity")) })
+    @CollectionTable(name = "t_order_item", joinColumns = @JoinColumn(name = "tracking_id"))
+    @OrderBy("name")
     private List<Item> items = new ArrayList<>();
 
     public Order(String trackingId) {
         this.trackingId = trackingId;
-        this.status = Status.WAIT_PAYMENT;
+        this.status = Status.WAIT_PAYMENT.code;
     }
+
 
     public String getTrackingId() {
         return trackingId;
     }
 
     public Status getStatus() {
-        return status;
+        return Status.of(status);
     }
 
     public void append(String name, int quantity) {
@@ -29,9 +42,15 @@ public class Order {
         return items;
     }
 
+    /**
+     * for frameworks only
+     */
+    private Order() {
+
+    }
 
     public enum Status {
-        WAIT_PAYMENT("WAIT_PAYMENT");
+        WAIT_PAYMENT("WAIT_PAYMENT"), UNKNOWN("UNKNOWN");
 
         private String code;
 
@@ -42,9 +61,18 @@ public class Order {
         public String getCode() {
             return code;
         }
+
+        public static Status of(String code) {
+            for (Status s: values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return UNKNOWN;
+        }
     }
 
-    public class Item {
+    public static class Item {
         private String name;
         private int quantity;
 
@@ -59,6 +87,13 @@ public class Order {
 
         public int getQuantity() {
             return quantity;
+        }
+
+        /**
+         * for frameworks only
+         */
+        private Item() {
+
         }
     }
 }

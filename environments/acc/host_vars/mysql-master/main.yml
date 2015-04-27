@@ -1,0 +1,4 @@
+---
+mysql_application_databases:
+  - { "database": "ordering_acc", "user":"ordering_admin", "password": "admin123"}
+
