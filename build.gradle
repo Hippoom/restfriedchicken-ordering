@@ -21,6 +21,7 @@ sourceSets {
     test {
         resources {
             srcDir 'src/test/features'
+            srcDir 'src/test/data'
         }
 
         compileClasspath += configurations.provided
@@ -59,6 +60,8 @@ dependencies {
     compile 'org.hibernate:hibernate-core:4.3.8.Final'
     compile 'org.apache.commons:commons-dbcp2:2.1'
     testCompile 'org.hsqldb:hsqldb:2.3.2'
+    testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
+    testCompile 'org.dbunit:dbunit:2.4.9'
 
 
     testCompile "org.springframework.boot:spring-boot-starter-test:${project.springBootVersion}"

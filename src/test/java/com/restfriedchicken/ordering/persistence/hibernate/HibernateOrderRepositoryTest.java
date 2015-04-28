@@ -1,24 +1,24 @@
 package com.restfriedchicken.ordering.persistence.hibernate;
 
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.ExpectedDatabase;
 import com.restfriedchicken.ordering.Application;
 import com.restfriedchicken.ordering.core.Order;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import java.util.Optional;
-
-import static com.restfriedchicken.ordering.core.Order.Status.WAIT_PAYMENT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class,
+        DbUnitTestExecutionListener.class})
 public class HibernateOrderRepositoryTest {
 
     @Autowired
@@ -27,6 +27,7 @@ public class HibernateOrderRepositoryTest {
     @Autowired
     private HibernateOrderRepository subject;
 
+    @ExpectedDatabase("classpath:order_save_expected.xml")
     @Test
     public void should_saves_order() throws Exception {
 
@@ -36,25 +37,6 @@ public class HibernateOrderRepositoryTest {
         order.append("item2", 2);
 
         subject.store(order);
-
-
-        new TransactionTemplate(transactionManager)
-                .execute(status -> {
-
-                    final Optional<Order> saved = subject.findByTrackingId(trackingId);
-                    assertThat(saved.isPresent(), is(true));
-                    final Order loaded = saved.get();
-                    assertThat(order.getStatus(), equalTo(WAIT_PAYMENT));
-                    assertThat(loaded.getItems().size(), is(2));
-
-                    assertThat(loaded.getItems().get(0).getName(), equalTo("item1"));
-                    assertThat(loaded.getItems().get(0).getQuantity(), is(1));
-
-                    assertThat(loaded.getItems().get(1).getName(), equalTo("item2"));
-                    assertThat(loaded.getItems().get(1).getQuantity(), is(2));
-
-                    return loaded;
-                });
     }
 
 
