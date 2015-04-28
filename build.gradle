@@ -22,6 +22,7 @@ sourceSets {
         resources {
             srcDir 'src/test/features'
             srcDir 'src/test/data'
+            srcDir 'src/test/sql'
         }
 
         compileClasspath += configurations.provided
@@ -62,6 +63,10 @@ dependencies {
     testCompile 'org.hsqldb:hsqldb:2.3.2'
     testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
     testCompile 'org.dbunit:dbunit:2.4.9'
+    testCompile ('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
+        exclude group: 'org.slf4j' //introducing multiple slf4j impl
+    }
+
 
 
     testCompile "org.springframework.boot:spring-boot-starter-test:${project.springBootVersion}"

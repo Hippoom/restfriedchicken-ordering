@@ -11,3 +11,4 @@ build
 
 #local
 src/test/resources/env.properties
+environments/dev/

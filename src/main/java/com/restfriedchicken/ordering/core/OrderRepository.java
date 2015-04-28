@@ -20,7 +20,6 @@ public class OrderRepository {
     }
 
     public void clear() {
-        this.orders = null;
-        this.orders = new ArrayList<>();
+        this.orders.clear();
     }
 }

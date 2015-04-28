@@ -2,8 +2,11 @@ package com.restfriedchicken.ordering.persistence.hibernate;
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
+import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 import com.restfriedchicken.ordering.Application;
 import com.restfriedchicken.ordering.core.Order;
+import org.flywaydb.test.annotation.FlywayTest;
+import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +17,14 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import static com.github.springtestdbunit.assertion.DatabaseAssertionMode.NON_STRICT_UNORDERED;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringApplicationConfiguration(classes = {Application.class})
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
-        DbUnitTestExecutionListener.class})
+        DbUnitTestExecutionListener.class, FlywayTestExecutionListener.class})
+@FlywayTest
 public class HibernateOrderRepositoryTest {
 
     @Autowired
@@ -27,7 +33,7 @@ public class HibernateOrderRepositoryTest {
     @Autowired
     private HibernateOrderRepository subject;
 
-    @ExpectedDatabase("classpath:order_save_expected.xml")
+    @ExpectedDatabase(value="classpath:order_save_expected.xml", assertionMode= NON_STRICT_UNORDERED)
     @Test
     public void should_saves_order() throws Exception {
 
