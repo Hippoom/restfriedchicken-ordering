@@ -16,7 +16,7 @@ public class PersistenceConfig {
 
 
     @Bean
-    @ConfigurationProperties(prefix="datasource")
+    @ConfigurationProperties(prefix="jdbc")
     public DataSource dataSource() {
         return new BasicDataSource();
     }

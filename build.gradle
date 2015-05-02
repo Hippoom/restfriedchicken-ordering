@@ -2,6 +2,7 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 apply plugin: 'maven'
+apply plugin: 'org.flywaydb.flyway'
 
 group = 'com.restfriedchicken'
 version = getVersion()
@@ -55,7 +56,6 @@ dependencies {
     compile 'org.springframework.plugin:spring-plugin-core:1.1.0.RELEASE'
     compile 'com.google.guava:guava:18.0'
 
-
     //persistence
     compile 'org.springframework:spring-orm:4.1.6.RELEASE'
     compile 'org.hibernate:hibernate-core:4.3.8.Final'
@@ -63,7 +63,7 @@ dependencies {
     testCompile 'org.hsqldb:hsqldb:2.3.2'
     testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
     testCompile 'org.dbunit:dbunit:2.4.9'
-    testCompile ('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
+    testCompile('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
         exclude group: 'org.slf4j' //introducing multiple slf4j impl
     }
 
@@ -104,7 +104,27 @@ buildscript {
 
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${project.springBootVersion}")
+        classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"
+        classpath "org.hsqldb:hsqldb:2.3.2"
+        classpath "mysql:mysql-connector-java:5.1.35"
     }
+
+    def flywayConfig = file("${buildDir}/env/flyway.properties")
+
+    if (flywayConfig.exists()) {
+        def flywayProperties = new Properties()
+        flywayProperties.load(flywayConfig.newInputStream())
+
+        for(def entry: flywayProperties.entrySet()) {
+
+            println "Using flyway config: ${entry.getKey()}=${entry.getValue()}"
+            project.ext["${entry.getKey()}"] = entry.getValue()
+        }
+    } else {
+        println "No flyway config found"
+    }
+
+
 }
 
 test {
@@ -118,10 +138,12 @@ test {
 
 task recordBinary() {
     doLast {
-        def binary = new File("${buildDir}/libs/binary")
+        def binary = file("${buildDir}/libs/binary")
         binary.text = "${project.name}-${project.version}.jar"
     }
 }
+
+bootRepackage.dependsOn(recordBinary)
 
 
 task runSmokeTest(type: Test) {
@@ -160,6 +182,38 @@ task runAcceptanceTest(type: Test) {
     }
 }
 
+task extractArtifact() {
+    doLast {
+
+        def outputDirName = "${buildDir}/tmp/under_config"
+        def outputDir = file(outputDirName)
+        assert outputDir.deleteDir()  // cleanup workspace
+
+        def zipFile = file("${buildDir}/libs/${getArtifactName()}")
+
+        copy {
+            from zipTree(zipFile)
+            into outputDir
+        }
+
+        copy {
+            from file("${buildDir}/env")
+            into file("${buildDir}/tmp/under_config")
+        }
+
+    }
+}
+
+task repackConfiguredArtifact(type: Zip, dependsOn: extractArtifact)  {
+    archiveName = "${getArtifactName()}"
+    destinationDir = file("${buildDir}/libs/${getEnv()}")
+    from file("${buildDir}/tmp/under_config")
+}
+
+def replacePropertyItem(line, item, value) {
+    line.contains("${item}=") ? "${item}=${value}" : line
+}
+
 def getVersion() {
     return "0.1-" + getBuildNumber()
 }
@@ -171,3 +225,15 @@ def getBuildNumber() {
 
     return "${revision}-${pipelineCounter}-${stageCounter}"
 }
+
+def getArtifactName() {
+    def binary = file("${buildDir}/libs/binary")
+    return binary.text
+}
+
+def getEnv() {
+    project.hasProperty('env')? project.env: "dev"
+}
+
+
+

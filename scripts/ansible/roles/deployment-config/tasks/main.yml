@@ -1,6 +1,12 @@
 ---
-  - name: make sure resources dir exists
+  - name: make sure main resources dir exists
+    file: path=../../build/resources/main state=directory
+
+  - name: make sure test resources dir exists
     file: path=../../build/resources/test state=directory
+
+  - name: make sure test resources dir exists
+    file: path=../../build/env state=directory
 
   - name: replace host for test
     lineinfile: >
@@ -17,3 +23,11 @@
   - name: make sure config file is ready
     copy: src=../../build/resources/test/env.properties.sample dest=../../build/resources/test/env.properties
 
+  - name: replace flyway config
+    template: src=flyway.properties dest=../../build/env/
+
+  - name: replace datasource config
+    template: src=hibernate.properties dest=../../build/env/
+
+  - name: replace hibernate config
+    template: src=datasource.properties dest=../../build/env/

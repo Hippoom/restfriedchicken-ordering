@@ -1,4 +1,5 @@
 ---
+
  - name: make sure service home is created
    file: path={{ ordering_dir }} state=directory
 

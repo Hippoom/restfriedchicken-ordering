@@ -9,7 +9,9 @@ dir=os.path.dirname(os.path.realpath(__file__))
 
 binary_name=open('{dir}/../build/libs/binary'.format(dir=dir)).read()
 
-command = 'ansible-playbook -i {dir}/../environments/{env}/inventory {dir}/ansible/ordering-service-vm-deployment.yml --extra-vars="ordering_binary={binary_name}"'
+workspace=os.path.abspath(os.path.join(os.path.join(os.path.realpath(__file__), os.pardir), os.pardir))
 
-subprocess.check_call(command.format(env=env, dir=dir, binary_name=binary_name), shell=True)
+command = 'ansible-playbook -i {dir}/../environments/{env}/inventory {dir}/ansible/ordering-service-vm-deployment.yml --extra-vars="workspace={workspace} env={env} ordering_binary={binary_name}"'
+
+subprocess.check_call(command.format(workspace=workspace, env=env, dir=dir, binary_name=binary_name), shell=True)
 
