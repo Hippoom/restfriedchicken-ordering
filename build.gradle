@@ -182,6 +182,10 @@ task runAcceptanceTest(type: Test) {
     }
 }
 
+bootRepackage {
+    enabled = false
+}
+
 task extractArtifact() {
     doLast {
 
@@ -189,7 +193,7 @@ task extractArtifact() {
         def outputDir = file(outputDirName)
         assert outputDir.deleteDir()  // cleanup workspace
 
-        def zipFile = file("${buildDir}/libs/${getArtifactName()}.original")
+        def zipFile = file("${buildDir}/libs/${getArtifactName()}")
 
         copy {
             from zipTree(zipFile)
@@ -205,15 +209,20 @@ task extractArtifact() {
     }
 }
 
-task repackConfiguredOriginalArtifact(type: Zip, dependsOn: extractArtifact)  {
+task clientJar(type: Jar) {
     archiveName = "${getArtifactName()}"
+    from file("${buildDir}/tmp/under_config")
+}
+
+task repackConfiguredOriginalArtifact(type: Zip, dependsOn: extractArtifact)  {
+    archiveName = "${getArtifactName()}.original"
     //destinationDir = file("${buildDir}/libs/${getEnv()}")
     destinationDir = file("${buildDir}/libs")
     from file("${buildDir}/tmp/under_config")
 }
 
-task repackConfiguredArtifact(type: BootRepackage, dependsOn: repackConfiguredOriginalArtifact) {
-    withJarTask = repackConfiguredOriginalArtifact
+task repackConfiguredArtifact(type: BootRepackage, dependsOn: clientJar) {
+    withJarTask = clientJar
 }
 
 def replacePropertyItem(line, item, value) {
