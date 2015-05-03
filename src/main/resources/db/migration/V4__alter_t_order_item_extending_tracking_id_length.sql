@@ -1,0 +1,1 @@
+alter table t_order_item modify tracking_id VARCHAR(40);

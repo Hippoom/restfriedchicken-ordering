@@ -52,4 +52,8 @@ public class OrderingController {
         }
         return null;
     }
+
+    public void setOrderRepository(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 }

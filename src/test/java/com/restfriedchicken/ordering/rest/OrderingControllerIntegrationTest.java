@@ -5,7 +5,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.restfriedchicken.ordering.Application;
 import com.restfriedchicken.ordering.core.Order;
-import com.restfriedchicken.ordering.core.OrderRepository;
+import com.restfriedchicken.ordering.core.StubOrderRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +15,7 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.LinkDiscoverer;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -30,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")//random port used
+@DirtiesContext
 public class OrderingControllerIntegrationTest {
     @Value("${local.server.port}")
     private int port;
@@ -46,7 +48,9 @@ public class OrderingControllerIntegrationTest {
     private LinkDiscoverer linkDiscoverer;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderingController subject;
+
+    private StubOrderRepository orderRepository = new StubOrderRepository();
 
 
     @Before
@@ -58,6 +62,11 @@ public class OrderingControllerIntegrationTest {
     @Before
     public void reset_test_doubles() {
         orderRepository.clear();
+    }
+
+    @Before
+    public void injectDoubles() {
+        subject.setOrderRepository(orderRepository);
     }
 
 

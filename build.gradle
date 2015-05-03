@@ -62,6 +62,7 @@ dependencies {
     compile 'org.apache.commons:commons-dbcp2:2.1'
     compile "mysql:mysql-connector-java:5.1.35"
     testCompile 'org.hsqldb:hsqldb:2.3.2'
+    testCompile 'com.h2database:h2:1.4.187'
     testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
     testCompile 'org.dbunit:dbunit:2.4.9'
     testCompile('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
@@ -107,6 +108,7 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${project.springBootVersion}")
         classpath "org.flywaydb:flyway-gradle-plugin:3.2.1"
         classpath "org.hsqldb:hsqldb:2.3.2"
+        classpath 'com.h2database:h2:1.4.187'
         classpath "mysql:mysql-connector-java:5.1.35"
     }
 
@@ -116,7 +118,7 @@ buildscript {
         def flywayProperties = new Properties()
         flywayProperties.load(flywayConfig.newInputStream())
 
-        for(def entry: flywayProperties.entrySet()) {
+        for (def entry : flywayProperties.entrySet()) {
 
             println "Using flyway config: ${entry.getKey()}=${entry.getValue()}"
             project.ext["${entry.getKey()}"] = entry.getValue()
@@ -144,7 +146,7 @@ task recordBinary() {
     }
 }
 
-bootRepackage.dependsOn(recordBinary)
+build.dependsOn(recordBinary)
 
 
 task runSmokeTest(type: Test) {
@@ -215,7 +217,7 @@ task clientJar(type: Jar, dependsOn: extractArtifact) {
     from file("${buildDir}/tmp/under_config")
 }
 
-task repackConfiguredOriginalArtifact(type: Zip, dependsOn: extractArtifact)  {
+task repackConfiguredOriginalArtifact(type: Zip, dependsOn: extractArtifact) {
     archiveName = "${getArtifactName()}"
     //destinationDir = file("${buildDir}/libs/${getEnv()}")
     destinationDir = file("${buildDir}/libs")
@@ -245,11 +247,20 @@ def getBuildNumber() {
 
 def getArtifactName() {
     def binary = file("${buildDir}/libs/binary")
-    return binary.text
+    binary.getText()
+//    def binaryFile = "${buildDir}/libs/binary"
+//    try {
+//        def binary = file(binaryFile)
+//        binary.text()
+//    } catch (Exception e) {
+//        println "Cannot find binary file at ${binaryFile}"
+//        ""
+//    }
+
 }
 
 def getEnv() {
-    project.hasProperty('env')? project.env: "dev"
+    project.hasProperty('env') ? project.env : "dev"
 }
 
 

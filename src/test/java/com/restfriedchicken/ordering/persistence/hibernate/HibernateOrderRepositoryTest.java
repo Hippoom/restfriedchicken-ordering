@@ -2,9 +2,9 @@ package com.restfriedchicken.ordering.persistence.hibernate;
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
-import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 import com.restfriedchicken.ordering.Application;
 import com.restfriedchicken.ordering.core.Order;
+import com.restfriedchicken.ordering.core.OrderRepository;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.junit.Test;
@@ -24,20 +24,20 @@ import static com.github.springtestdbunit.assertion.DatabaseAssertionMode.NON_ST
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
         DbUnitTestExecutionListener.class, FlywayTestExecutionListener.class})
-@FlywayTest
+@FlywayTest(invokeCleanDB = false)
 public class HibernateOrderRepositoryTest {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    private HibernateOrderRepository subject;
+    private OrderRepository subject;
 
-    @ExpectedDatabase(value="classpath:order_save_expected.xml", assertionMode= NON_STRICT_UNORDERED)
+    @ExpectedDatabase(value = "classpath:order_save_expected.xml", assertionMode = NON_STRICT_UNORDERED)
     @Test
     public void should_saves_order() throws Exception {
 
-        final String trackingId = "123456";
+        final String trackingId = "240eff2f-6c38-4998-9287-2e447dac4fd4";
         final Order order = new Order(trackingId);
         order.append("item1", 1);
         order.append("item2", 2);
