@@ -1,15 +1,29 @@
 ---
 
+
+
  - name: make sure service home is created
-   file: path={{ ordering_dir }} state=directory
+   file: path={{ ordering_dir }} state=directory owner={{ ansible_ssh_user }}
+   sudo: yes
 
  - name: make sure scripts is uploaded
-   template: src={{ item.template }} dest={{ ordering_dir }}/{{ item.file }} mode="u=rwx,g=r,o=r"
-   with_items:
-     - { template: 'start_app.sh.j2', file: 'start_app.sh' }
+   template: src=service.sh dest=/etc/init.d/ordering owner={{ ansible_ssh_user }} mode="u=rwx,g=r,o=r"
+   sudo: yes
 
  - name: make sure ots service is downloaded
-   copy: src={{ ordering_binary_src_dir }}/{{ ordering_binary }} dest={{ ordering_dir }}/
+   copy: src={{ ordering_binary_src_dir }}/{{ ordering_binary }} dest={{ ordering_dir }}/releases/
+   register: binary
 
- - name: make sure ots service is running
-   command: "{{ ordering_dir }}/start_app.sh"
+ - name: detect if current release exists
+   stat: path={{ ordering_dir }}/current
+   register: current_release
+   when: binary.changed
+
+ - name: remove current release if exists
+   shell: rm -f {{ ordering_dir }}/current
+   when: binary.changed and current_release is defined and current_release.stat.exists == True
+
+ - name: make sure the new binary is current release
+   shell: ln -s {{ ordering_dir }}/releases/{{ ordering_binary }} {{ ordering_dir }}/current
+   notify: restart ots service
+   when: binary.changed

@@ -1,6 +1,6 @@
 ---
 ordering_binary_src_dir: ../../build/libs
-ordering_dir: /home/vagrant/ordering
+ordering_dir: /opt/ordering
 ordering_binary: restfriedchicken-ordering-1.0.jar
 
 
