@@ -5,25 +5,64 @@
  - name: make sure service home is created
    file: path={{ ordering_dir }} state=directory owner={{ ansible_ssh_user }}
    sudo: yes
+   tags:
+      - deploy
 
  - name: make sure scripts is uploaded
    template: src=service.sh dest=/etc/init.d/ordering owner={{ ansible_ssh_user }} mode="u=rwx,g=r,o=r"
    sudo: yes
+   tags:
+      - deploy
 
  - name: make sure ots service is downloaded
    copy: src={{ ordering_binary_src_dir }}/{{ ordering_binary }} dest={{ ordering_dir }}/releases/
    register: binary
+   tags:
+      - deploy
+
+ - name: record release history
+   shell: echo {{ ordering_dir }}/releases/{{ ordering_binary }} >> {{ ordering_dir }}/revisions
+   when: binary.changed
+   tags:
+      - deploy
 
  - name: detect if current release exists
    stat: path={{ ordering_dir }}/current
    register: current_release
    when: binary.changed
+   tags:
+      - deploy
 
  - name: remove current release if exists
    shell: rm -f {{ ordering_dir }}/current
    when: binary.changed and current_release is defined and current_release.stat.exists == True
+   tags:
+      - deploy
+      - rollback
+
+ - name: get path of the latest rlease
+   shell: tail -1 {{ ordering_dir }}/revisions
+   register: latest_release_path
+
+
+ - name: remove latest rlease
+   file: path={{ latest_release_path.stdout_lines[0] }} state=absent
+   tags:
+      - rollback
+
+ - name: remove current release in revision
+   lineinfile: dest={{ ordering_dir }}/revisions state=absent regexp="^{{ latest_release_path.stdout_lines[0] }}"
+   tags:
+      - rollback
+
+ - name: get path of the latest rlease
+   shell: tail -1 {{ ordering_dir }}/revisions
+   register: latest_release_path
+   tags:
+      - rollback
+
 
  - name: make sure the new binary is current release
-   shell: ln -s {{ ordering_dir }}/releases/{{ ordering_binary }} {{ ordering_dir }}/current
+   file: src={{ latest_release_path.stdout_lines[0] }} dest={{ ordering_dir }}/current state=link
    notify: restart ots service
-   when: binary.changed
+   when: binary is not defined or binary.changed
