@@ -68,6 +68,7 @@ dependencies {
     testCompile('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
         exclude group: 'org.slf4j' //introducing multiple slf4j impl
     }
+    testCompile 'org.modelmapper:modelmapper:0.7.4'
 
 
 

@@ -26,29 +26,6 @@ public class Order {
     }
 
 
-    public String getTrackingId() {
-        return trackingId;
-    }
-
-    public Status getStatus() {
-        return Status.of(status);
-    }
-
-    public void append(String name, int quantity) {
-        this.items.add(new Item(name, quantity));
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
-    /**
-     * for frameworks only
-     */
-    private Order() {
-
-    }
-
     public enum Status {
         WAIT_PAYMENT("WAIT_PAYMENT"), UNKNOWN("UNKNOWN");
 
@@ -70,12 +47,12 @@ public class Order {
             }
             return UNKNOWN;
         }
-    }
 
+    }
     public static class Item {
+
         private String name;
         private int quantity;
-
         public Item(String name, int quantity) {
             this.name = name;
             this.quantity = quantity;
@@ -95,5 +72,28 @@ public class Order {
         private Item() {
 
         }
+
+    }
+    public String getTrackingId() {
+        return trackingId;
+    }
+
+    public Status getStatus() {
+        return Status.of(status);
+    }
+
+    public void append(String name, int quantity) {
+        this.items.add(new Item(name, quantity));
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    /**
+     * for frameworks only
+     */
+    private Order() {
+
     }
 }
