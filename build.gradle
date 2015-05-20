@@ -63,8 +63,9 @@ dependencies {
     compile "mysql:mysql-connector-java:5.1.35"
     testCompile 'org.hsqldb:hsqldb:2.3.2'
     testCompile 'com.h2database:h2:1.4.187'
-    testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
-    testCompile 'org.dbunit:dbunit:2.4.9'
+    //testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
+    testCompile 'com.github.hippoom:spring-test-dbunit-template:0.0.1'
+    //testCompile 'org.dbunit:dbunit:2.4.9'
     testCompile('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
         exclude group: 'org.slf4j' //introducing multiple slf4j impl
     }
