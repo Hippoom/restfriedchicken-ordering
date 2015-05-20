@@ -188,7 +188,11 @@ task runAcceptanceTest(type: Test) {
 }
 
 bootRepackage {
-    enabled = false
+    if (getEnv() == 'dev') {
+        enabled = true
+    } else {
+        enabled = false
+    }
 }
 
 task extractArtifact() {

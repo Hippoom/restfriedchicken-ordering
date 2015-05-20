@@ -1,3 +1,4 @@
 ---
 ordering_service_port: 18001
+ordering_service_log_file: /opt/ordering/app.log
 

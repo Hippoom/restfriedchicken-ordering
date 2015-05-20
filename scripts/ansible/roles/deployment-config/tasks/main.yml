@@ -31,3 +31,6 @@
 
   - name: replace hibernate config
     template: src=datasource.properties dest=../../build/env/
+
+  - name: replace logback config
+    template: src=logback.xml dest=../../build/env/
