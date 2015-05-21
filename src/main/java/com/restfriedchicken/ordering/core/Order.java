@@ -25,9 +25,13 @@ public class Order {
         this.status = Status.WAIT_PAYMENT.code;
     }
 
+    public void cancel() {
+        this.status = Status.CANCELED.code;
+    }
+
 
     public enum Status {
-        WAIT_PAYMENT("WAIT_PAYMENT"), UNKNOWN("UNKNOWN");
+        WAIT_PAYMENT("WAIT_PAYMENT"), CANCELED("CANCELED"), UNKNOWN("UNKNOWN");
 
         private String code;
 

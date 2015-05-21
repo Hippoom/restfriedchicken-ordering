@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -40,6 +41,19 @@ public class OrderingController {
         final OrderResource orderResource = orderResourceAssembler.toResource(order);
 
         return new ResponseEntity<>(orderResource, CREATED);
+    }
+
+    @RequestMapping(value="/{trackingId}", method = DELETE)
+    @ResponseBody
+    protected HttpEntity<OrderResource> cancelOrder(@PathVariable("trackingId") String trackingId) {
+
+        Optional<Order> order = orderRepository.findByTrackingId(trackingId);
+        if (order.isPresent()) {
+            order.get().cancel();
+            final OrderResource orderResource = orderResourceAssembler.toResource(order.get());
+            return new ResponseEntity<>(orderResource, OK);
+        }
+        return null;
     }
 
     @RequestMapping(value = "/{tracking_id}", method = GET)

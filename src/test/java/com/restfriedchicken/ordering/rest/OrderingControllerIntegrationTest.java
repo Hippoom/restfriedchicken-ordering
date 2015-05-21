@@ -108,6 +108,29 @@ public class OrderingControllerIntegrationTest {
     }
 
     @Test
+    public void should_returns_ok_when_cancels_an_order() throws Exception {
+
+        Order order = new Order("123456");
+        order.append("Fried Chicken", 1);
+        orderRepository.store(order);
+
+        Response response = given().when().
+                delete("/orders/" + order.getTrackingId()).
+                then().log().everything().
+                statusCode(SC_OK).extract().response();
+
+        String responseBody = response.asString();
+
+        assertThat(JsonPath.read(responseBody, "$.status"),
+                equalTo(Order.Status.CANCELED.getCode()));
+
+        Link self = linkDiscoverer.findLinkWithRel("self", responseBody);
+
+        assertThat(self.getHref(),
+                equalTo(getResourceUri("/orders/" + order.getTrackingId())));
+    }
+
+    @Test
     public void should_returns_ok_and_resource_when_gets_an_order() throws Exception {
 
         Order order = new Order("123456");
