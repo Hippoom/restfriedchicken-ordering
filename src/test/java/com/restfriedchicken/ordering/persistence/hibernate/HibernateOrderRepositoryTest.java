@@ -13,8 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.config.Configuration;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -27,7 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.Optional;
 
 import static com.github.springtestdbunit.assertion.DatabaseAssertionMode.NON_STRICT_UNORDERED;
-import static org.modelmapper.config.Configuration.AccessLevel.*;
+import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class})
@@ -37,8 +35,11 @@ import static org.modelmapper.config.Configuration.AccessLevel.*;
 @FlywayTest(invokeCleanDB = false)
 public class HibernateOrderRepositoryTest {
 
-    public static final String TRACKING_ID_OF_PROTOTYPE = "240eff2f-6c38-4998-9287-2e447dac4fd3";
+    public static final String TRACKING_ID_OF_SAVE_PROTOTYPE = "240eff2f-6c38-4998-9287-2e447dac4fd3";
     public static final String TRACKING_ID_OF_TO_BE_SAVED = "240eff2f-6c38-4998-9287-2e447dac4fd4";
+
+    public static final String TRACKING_ID_OF_UPDATE_PROTOTYPE = "240eff2f-6c38-4998-9287-2e447dac4fd5";
+    public static final String TRACKING_ID_OF_TO_BE_UPDATED = "240eff2f-6c38-4998-9287-2e447dac4fd6";
 
     @Autowired
     private PlatformTransactionManager transactionManager;
@@ -56,11 +57,25 @@ public class HibernateOrderRepositoryTest {
 
         final Order toBeSaved = new TransactionTemplate(transactionManager)
                 .execute(status -> {
-                    final Optional<Order> orderMaybe = subject.findByTrackingId(TRACKING_ID_OF_PROTOTYPE);
+                    final Optional<Order> orderMaybe = subject.findByTrackingId(TRACKING_ID_OF_SAVE_PROTOTYPE);
                     return clone(orderMaybe.get(), TRACKING_ID_OF_TO_BE_SAVED);
                 });
 
         subject.store(toBeSaved);
+    }
+
+    @DatabaseSetup("classpath:order_update_fixture.xml")
+    @ExpectedDatabase(value = "classpath:order_update_expected.xml",
+            assertionMode = NON_STRICT_UNORDERED)
+
+    @Test
+    public void should_updates_order() throws Exception {
+        new TransactionTemplate(transactionManager).execute(status -> {
+            final Optional<Order> prototype = subject.findByTrackingId(TRACKING_ID_OF_UPDATE_PROTOTYPE);
+            final Optional<Order> toBeUpdated = subject.findByTrackingId(TRACKING_ID_OF_TO_BE_UPDATED);
+            clone(prototype.get(), toBeUpdated.get());
+            return toBeUpdated;
+        });
     }
 
     private class OrderCreateTemplateModifier extends CreateTemplateModifier {
@@ -71,18 +86,30 @@ public class HibernateOrderRepositoryTest {
     }
 
     private Order clone(Order prototype, String newTrackingId) {
-        ModelMapper mapper = new ModelMapper();
+        ModelMapper mapper = mapper(newTrackingId);
 
+        return mapper.map(prototype, Order.class);
+    }
+
+    private void clone(Order prototype, Order updated) {
+
+        String trackingId = updated.getTrackingId();
+        ModelMapper mapper = mapper(trackingId);
+
+        mapper.map(prototype, updated);
+    }
+
+    private ModelMapper mapper(final String trackingId) {
+        ModelMapper mapper = new ModelMapper();
         PropertyMap<Order, Order> orderMap = new PropertyMap<Order, Order>() {
             protected void configure() {
-                map(newTrackingId, destination.getTrackingId());
+                map(trackingId, destination.getTrackingId());
             }
         };
         mapper.getConfiguration()
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(PRIVATE);
         mapper.addMappings(orderMap);
-
-        return mapper.map(prototype, Order.class);
+        return mapper;
     }
 }
