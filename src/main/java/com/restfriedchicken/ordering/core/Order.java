@@ -4,6 +4,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.restfriedchicken.ordering.core.Order.Status.WAIT_PAYMENT;
+
 @Entity
 @Table(name="t_order")
 public class Order {
@@ -22,11 +24,19 @@ public class Order {
 
     public Order(String trackingId) {
         this.trackingId = trackingId;
-        this.status = Status.WAIT_PAYMENT.code;
+        this.status = WAIT_PAYMENT.code;
     }
 
     public void cancel() {
         this.status = Status.CANCELED.code;
+    }
+
+    public boolean isAvailableToCancel() {
+        return WAIT_PAYMENT.equals(Status.of(status));
+    }
+
+    public boolean isAvailableToPayment() {
+        return WAIT_PAYMENT.equals(Status.of(status));
     }
 
 

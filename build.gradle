@@ -61,11 +61,8 @@ dependencies {
     compile 'org.hibernate:hibernate-core:4.3.8.Final'
     compile 'org.apache.commons:commons-dbcp2:2.1'
     compile "mysql:mysql-connector-java:5.1.35"
-    testCompile 'org.hsqldb:hsqldb:2.3.2'
     testCompile 'com.h2database:h2:1.4.187'
-    //testCompile 'com.github.springtestdbunit:spring-test-dbunit:1.2.1'
     testCompile 'com.github.hippoom:spring-test-dbunit-template:0.0.1'
-    //testCompile 'org.dbunit:dbunit:2.4.9'
     testCompile('org.flywaydb.flyway-test-extensions:flyway-spring-test:3.2.1') {
         exclude group: 'org.slf4j' //introducing multiple slf4j impl
     }
@@ -84,6 +81,12 @@ dependencies {
     testCompile "info.cukes:cucumber-junit:${project.cucumberVersion}"
 }
 
+task testJar(type: Jar) {
+    archiveName "${rootProject.name}-${rootProject.version}-test.jar"
+    from 'build/classes/test', 'build/resources/test'
+    classifier = 'test'
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -98,7 +101,7 @@ uploadArchives {
 buildscript {
 
     ext {
-        springBootVersion = '1.1.9.RELEASE'
+        springBootVersion = '1.2.3.RELEASE'
         cucumberVersion = '1.2.2'
     }
 
@@ -188,52 +191,46 @@ task runAcceptanceTest(type: Test) {
 }
 
 bootRepackage {
-    if (getEnv() == 'dev') {
-        enabled = true
-    } else {
+    if (repack()) {
         enabled = false
     }
 }
 
-task extractArtifact() {
-    doLast {
+if (repack()) {
+    task extractArtifact() {
+        doLast {
 
-        def outputDirName = "${buildDir}/tmp/under_config"
-        def outputDir = file(outputDirName)
-        assert outputDir.deleteDir()  // cleanup workspace
+            def outputDirName = "${buildDir}/tmp/under_config"
+            def outputDir = file(outputDirName)
+            assert outputDir.deleteDir()  // cleanup workspace
 
-        def zipFile = file("${buildDir}/libs/${getArtifactName()}")
+            def zipFile = file("${buildDir}/libs/${getArtifactName()}")
 
-        copy {
-            from zipTree(zipFile)
-            into outputDir
+            copy {
+                from zipTree(zipFile)
+                into outputDir
+            }
+
+            copy {
+                from file("${buildDir}/env")
+                into file("${buildDir}/tmp/under_config")
+            }
+
+            assert zipFile.delete()
         }
+    }
 
-        copy {
-            from file("${buildDir}/env")
-            into file("${buildDir}/tmp/under_config")
-        }
+    task clientJar(type: Jar, dependsOn: extractArtifact) {
+        archiveName = "${getArtifactName()}"
+        from file("${buildDir}/tmp/under_config")
+    }
 
-        assert zipFile.delete()
+    task repackConfiguredArtifact(type: BootRepackage, dependsOn: clientJar) {
+        withJarTask = clientJar
+        mainClass = "com.restfriedchicken.ordering.Application"
     }
 }
 
-task clientJar(type: Jar, dependsOn: extractArtifact) {
-    archiveName = "${getArtifactName()}"
-    from file("${buildDir}/tmp/under_config")
-}
-
-task repackConfiguredOriginalArtifact(type: Zip, dependsOn: extractArtifact) {
-    archiveName = "${getArtifactName()}"
-    //destinationDir = file("${buildDir}/libs/${getEnv()}")
-    destinationDir = file("${buildDir}/libs")
-    from file("${buildDir}/tmp/under_config")
-}
-//
-task repackConfiguredArtifact(type: BootRepackage, dependsOn: clientJar) {
-    withJarTask = clientJar
-    //mainClass = "com.restfriedchicken.ordering.Application"
-}
 
 def replacePropertyItem(line, item, value) {
     line.contains("${item}=") ? "${item}=${value}" : line
@@ -254,20 +251,14 @@ def getBuildNumber() {
 def getArtifactName() {
     def binary = file("${buildDir}/libs/binary")
     binary.getText()
-//    def binaryFile = "${buildDir}/libs/binary"
-//    try {
-//        def binary = file(binaryFile)
-//        binary.text()
-//    } catch (Exception e) {
-//        println "Cannot find binary file at ${binaryFile}"
-//        ""
-//    }
-
 }
 
 def getEnv() {
     project.hasProperty('env') ? project.env : "dev"
 }
 
+def repack() {
+    project.hasProperty('repack') ? project.repack : false
+}
 
 

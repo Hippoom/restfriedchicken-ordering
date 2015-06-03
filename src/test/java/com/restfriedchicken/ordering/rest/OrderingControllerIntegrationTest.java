@@ -1,9 +1,11 @@
 package com.restfriedchicken.ordering.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.restfriedchicken.ordering.Application;
+import com.restfriedchicken.ordering.commandhandler.OrderingHandler;
 import com.restfriedchicken.ordering.core.Order;
 import com.restfriedchicken.ordering.core.StubOrderRepository;
 import org.junit.Before;
@@ -48,7 +50,13 @@ public class OrderingControllerIntegrationTest {
     private LinkDiscoverer linkDiscoverer;
 
     @Autowired
+    private ObjectMapper halObjectMapper;
+
+    @Autowired
     private OrderingController subject;
+
+    @Autowired
+    private OrderingHandler handler;
 
     private StubOrderRepository orderRepository = new StubOrderRepository();
 
@@ -67,6 +75,7 @@ public class OrderingControllerIntegrationTest {
     @Before
     public void injectDoubles() {
         subject.setOrderRepository(orderRepository);
+        handler.setOrderRepository(orderRepository);
     }
 
 
@@ -128,6 +137,10 @@ public class OrderingControllerIntegrationTest {
 
         assertThat(self.getHref(),
                 equalTo(getResourceUri("/orders/" + order.getTrackingId())));
+
+        OrderResource resource = halObjectMapper.readValue(responseBody, OrderResource.class);
+
+        assertThat(resource.getLinks().size(), is(1));
     }
 
     @Test

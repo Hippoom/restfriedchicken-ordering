@@ -1,6 +1,7 @@
 package com.restfriedchicken.ordering.rest;
 
 import com.restfriedchicken.ordering.command.PlaceOrderCommand;
+import com.restfriedchicken.ordering.commandhandler.OrderingHandler;
 import com.restfriedchicken.ordering.core.Order;
 import com.restfriedchicken.ordering.core.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,18 +13,18 @@ import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderingController {
-
+    @Autowired
+    private OrderingHandler orderingHandler;
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
     private OrderResourceAssembler orderResourceAssembler;
+
 
     @RequestMapping(method = POST)
     @ResponseBody
@@ -32,7 +33,7 @@ public class OrderingController {
         final String trackingId = command.getTrackingId();
 
         Order order = new Order(trackingId);
-        for (PlaceOrderCommand.Item item: command.getItems()) {
+        for (PlaceOrderCommand.Item item : command.getItems()) {
             order.append(item.getName(), item.getQuantity());
         }
 
@@ -43,17 +44,14 @@ public class OrderingController {
         return new ResponseEntity<>(orderResource, CREATED);
     }
 
-    @RequestMapping(value="/{trackingId}", method = DELETE)
+    @RequestMapping(value = "/{trackingId}", method = DELETE)
     @ResponseBody
     protected HttpEntity<OrderResource> cancelOrder(@PathVariable("trackingId") String trackingId) {
 
-        Optional<Order> order = orderRepository.findByTrackingId(trackingId);
-        if (order.isPresent()) {
-            order.get().cancel();
-            final OrderResource orderResource = orderResourceAssembler.toResource(order.get());
-            return new ResponseEntity<>(orderResource, OK);
-        }
-        return null;
+        Order order = orderingHandler.cancel(trackingId);
+        final OrderResource orderResource = orderResourceAssembler.toResource(order);
+        return new ResponseEntity<>(orderResource, OK);
+
     }
 
     @RequestMapping(value = "/{tracking_id}", method = GET)

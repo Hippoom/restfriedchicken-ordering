@@ -24,10 +24,13 @@ public class OrderResourceAssembler extends ResourceAssemblerSupport<Order, Orde
 
         OrderResource resource = new OrderResource(model.getTrackingId(), model.getStatus().getCode(), toResources(model.getItems()));
         resource.add(orderResourceHref(model).withSelfRel());
-        resource.add(orderResourceHref(model).withRel("cancel"));
 
-        resource.add(new Link("http://www.restfriedchicken.com/online-txn/" + model.getTrackingId(), "payment"));
-
+        if (model.isAvailableToCancel()) {
+            resource.add(orderResourceHref(model).withRel("cancel"));
+        }
+        if (model.isAvailableToPayment()) {
+            resource.add(new Link("http://www.restfriedchicken.com/online-txn/" + model.getTrackingId(), "payment"));
+        }
 
         return resource;
     }
