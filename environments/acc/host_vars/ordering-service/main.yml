@@ -1,3 +1,10 @@
 ---
-ordering_service_port: 17180
+ordering_service_port: 18081
+file_logging: false
+
+jdbc_ip: 192.168.71.2
+jdbc_port: 3306
+jdbc_database: ordering_acc
+jdbc_username: ordering_admin
+jdbc_password: admin123
 

@@ -1,8 +1,2 @@
 [ordering-services]
-ordering-service ansible_ssh_host=127.0.0.1 ansible_ssh_port=17122 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_sudo_pass=vagrant
-
-[mysql-servers]
-mysql-master ansible_ssh_host=127.0.0.1 ansible_ssh_port=17122 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_sudo_pass=vagrant
-
-[tomcat-servers]
-tomcat-server ansible_ssh_host=127.0.0.1 ansible_ssh_port=17122 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_sudo_pass=vagrant
+ordering-service ansible_ssh_host=192.168.130.2 ansible_ssh_port=22 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_sudo_pass=vagrant

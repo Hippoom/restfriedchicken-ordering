@@ -1,9 +1,0 @@
----
-mysql_application_databases:
-  - { "database": "ordering_acc", "user":"ordering_admin", "password": "admin123"}
-
-jdbc_port: 3306
-jdbc_database: ordering_acc
-jdbc_username: ordering_admin
-jdbc_password: admin123
-

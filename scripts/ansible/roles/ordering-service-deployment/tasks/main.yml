@@ -1,15 +1,7 @@
 ---
 
-
-
  - name: make sure service home is created
    file: path={{ ordering_dir }} state=directory owner={{ ansible_ssh_user }}
-   sudo: yes
-   tags:
-      - deploy
-
- - name: make sure scripts is uploaded
-   template: src=service.sh dest=/etc/init.d/ordering owner={{ ansible_ssh_user }} mode="u=rwx,g=r,o=r"
    sudo: yes
    tags:
       - deploy
@@ -44,9 +36,9 @@
    shell: tail -1 {{ ordering_dir }}/revisions
    register: latest_release_path
 
-
  - name: remove latest rlease
    file: path={{ latest_release_path.stdout_lines[0] }} state=absent
+   when: latest_release_path.stdout_lines is defined
    tags:
       - rollback
 
@@ -64,5 +56,12 @@
 
  - name: make sure the new binary is current release
    file: src={{ latest_release_path.stdout_lines[0] }} dest={{ ordering_dir }}/current state=link
-   notify: restart ots service
    when: binary is not defined or binary.changed
+   tags:
+      - deploy
+
+ - name: deploy ots service container
+   shell: /usr/local/bin/docker run -d -p {{ ordering_service_port }}:8080 -v {{ ordering_dir }}:/opt/ordering hippoom/restfriedchicken-jar
+   sudo: yes
+   tags:
+      - deploy

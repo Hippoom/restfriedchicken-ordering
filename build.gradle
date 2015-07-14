@@ -232,6 +232,13 @@ if (repack()) {
 }
 
 
+task prepareBinaryForLocalDocker() << {
+    copy {
+        from file("${buildDir}/libs/${getArtifactName()}")
+        into file("${buildDir}/libs/current")
+    }
+}
+
 def replacePropertyItem(line, item, value) {
     line.contains("${item}=") ? "${item}=${value}" : line
 }
@@ -260,5 +267,7 @@ def getEnv() {
 def repack() {
     project.hasProperty('repack') ? project.repack : false
 }
+
+
 
 

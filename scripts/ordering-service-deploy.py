@@ -20,7 +20,7 @@ binary_name=open('{dir}/../build/libs/binary'.format(dir=dir)).read()
 
 workspace=os.path.abspath(os.path.join(os.path.join(os.path.realpath(__file__), os.pardir), os.pardir))
 
-command = 'ansible-playbook -i {dir}/../environments/{env}/inventory {dir}/ansible/ordering-service-vm-deployment.yml --skip-tags "{skip_tags}" --extra-vars="workspace={workspace} env={env} ordering_binary={binary_name}"'
+command = 'ansible-playbook -i {dir}/../environments/{env}/inventory {dir}/ansible/ordering-service-deployment.yml --skip-tags "{skip_tags}" --extra-vars="workspace={workspace} env={env} ordering_binary={binary_name}"  -vvvv'
 
 subprocess.check_call(command.format(skip_tags=skip_tags, workspace=workspace, env=env, dir=dir, binary_name=binary_name), shell=True)
 
