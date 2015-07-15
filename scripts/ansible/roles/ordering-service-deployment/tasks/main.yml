@@ -61,7 +61,7 @@
       - deploy
 
  - name: check if ots service container is launched
-   shell: docker ps -a | grep ordering-service-dev | awk '{print $1}'
+   shell: docker ps -a | grep ordering-service-{{ env }} | awk '{print $1}'
    sudo: yes
    register: container
 
